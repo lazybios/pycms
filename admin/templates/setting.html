@@ -1,0 +1,29 @@
+$def with (form)
+<h2>设置</h2>
+<form action="/admin/setting" method="post">
+<fieldset>
+    <legend>基本设置</legend>
+    <div class="control-group$input_error_class(form.site_name.note)">
+        <label for="site_name" class="control-label">站点名称</label>
+        $:form.site_name.render()
+        $if form.site_name.note:
+            <p class="help-block">$:form.site_name.description$:form.site_name.note</p>
+    </div>
+    <label for="site_keyword">站点关键字</label>
+    $:form.site_keyword.render()
+    <label for="site_description">站点描述</label>
+    $:form.site_description.render()
+</fieldset>
+<fieldset>
+    <legend>站点状态</legend>
+    <label class="inline-label">
+        $:form.site_status.render()
+    </label>
+    <label for="site_close_reason">站点关闭原因</label>
+    $:form.site_close_reason.render()
+</fieldset>
+<div class="form-actions">
+    <button type="submit" class="btn btn-primary">保存</button>
+</div>
+</form>
+$var title: 设置

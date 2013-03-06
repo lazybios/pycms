@@ -1,0 +1,38 @@
+$def with (categories, model, category_setting)
+<h2>$category_setting['label']</h2>
+$if not categories:
+    <div class="alert alert-info">还木有$category_setting['label'] !<a href="/admin/$model/category/add">添加$category_setting['label']</a></div>
+$else:
+    <form action="/admin/$model/category" class="form-inline" method="post">
+        <div class="control-group">
+            <select name="action" class="span1">
+                <option value="-1">&nbsp;</option>
+                <option value="delete">删除</option>
+            </select>
+            <button type="submit" class="btn" name="doaction" value="doaction">应用</button>
+        </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="check_all" /></th>
+                    <th>名称</th>
+                    <th>别名</th>
+                    <th>描述</th>
+                    <th>数目</th>
+                    <th class="actions">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+            $for category in categories:
+                <tr>
+                    <td><input type="checkbox" name="id" value="$category.id" /></td>
+                    <td>$(category['_depth'] * '-') $category.name</td>
+                    <td>$category.slug</td>
+                    <td>$category.description</td>
+                    <td>$category.count</td>
+                    <td class="actions"><a href="/admin/$model/category/edit/$category.id" class="btn">编辑</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+$var title: $category_setting['label']

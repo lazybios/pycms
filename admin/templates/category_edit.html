@@ -1,0 +1,16 @@
+$def with (form, model, category_setting, id)
+<h2>$category_setting['label']编辑</h2>
+<form action="/admin/$model/category/edit/$id" method="post">
+    $for input in form.inputs:
+        <div class="control-group$input_error_class(input.note)">
+        <label for="$input.name" class="control-label">$input.description</label>
+        $:input.render()
+        $if input.note:
+            <p class="help-block">$input.description$input.note</p>
+        </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <button type="reset" class="btn">取消</button>
+    </div>
+</form>
+$var title: $category_setting['label']编辑
