@@ -26,12 +26,13 @@ status_list = {
     STATUS_DISABLED: '已禁用',
 }
 
-def auth(username, password):
+def login(username, password):
     where = 'username=$username AND password=$password'
     vars = {'username': username, 'password': md5(password).hexdigest()}
     try:
-        user = db.select('users', what='id', where=where, vars=vars, limit=1)[0]
-        return user['id']
+        user = db.select('users', what='id, username, last_login', where=where, vars=vars, limit=1)[0]
+        db.update('users', where=user['id'], **{'last_login': datetime.utcnow()})
+        return user
     except IndexError:
         return False;
 

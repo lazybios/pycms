@@ -21,6 +21,8 @@ class Index:
 
 class Setting:
     def GET(self):
+        web.debug(render)
+        print(dir(render))
         form = setting_form()
         form.fill(model_setting.get_setting())
         return render.setting(form)

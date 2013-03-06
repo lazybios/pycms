@@ -41,7 +41,7 @@ def get_post(id=None, slug=None, status=STATUC_PUBLISH ):
         post['categories'] = category_model.get_categories_by_object(post['id'])
         post['tags'] = tag_model.get_tags_by_object(post['id'], 'post')
         return post
-    except:
+    except IndexError:
         return False
 
 def filter_values(values):

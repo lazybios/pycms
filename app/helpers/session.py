@@ -1,5 +1,7 @@
 import web
 
+from app.models import user as user_model
+
 def init_session(app):
     session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'is_logged' : False})
     def session_hook():
@@ -12,8 +14,16 @@ def get_session():
 def is_logged():
     return get_session().is_logged
 
-def login():
-    pass
+def login(username, password):
+    user = user_model.login(username, password)
+    if user is not False:
+        session['user'] = {}
+        session['user']['id'] = user['id']
+        session.is_logged = True
+        session['user']['username'] = user['username']
+        return True
+    else:
+        return False
 
 def logout():
     get_session().kill()
