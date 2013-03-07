@@ -1,0 +1,12 @@
+$def with (form)
+<form action="/login" method="post" class="form-signin">
+    $ alert = get_flash()
+    $if alert:
+        $:alert
+    <h2 class="form-signin-heading">登陆</h2>
+    $:form.username.render()
+    $:form.password.render()
+    <button class="btn btn-primary" type="submit">登陆</button>
+    <a href="/forget-password">忘记密码？</a>
+</form>
+$var title:登陆
