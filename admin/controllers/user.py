@@ -1,4 +1,5 @@
 #encoding=utf-8
+
 import web
 from web import form
 
@@ -10,7 +11,7 @@ vusername = form.regexp(r'^[A-z\-_0-9]{4,16}$', '必须为包含英文或数字�
 
 user_form = form.Form(
     form.Textbox('username', validator.not_empty, vusername , description='用户名'),
-    form.Password('password' ,  description='密码'),
+    form.Password('password',  description='密码'),
     form.Password('confirm_password', description='确认密码'),
     form.Textbox('email', validator.not_empty, validator.email , description='电子邮件'),
     form.Dropdown('status', args=[(k, user_model.status_list[k]) for k in user_model.status_list], description='状态'),
@@ -18,7 +19,7 @@ user_form = form.Form(
 
 profile_form = form.Form(
     form.Textbox('username', validator.not_empty, vusername , description='用户名'),
-    form.Password('password' ,  description='密码'),
+    form.Password('password',  description='密码'),
     form.Password('confirm_password', description='确认密码'),
     form.Textbox('email', validator.not_empty, validator.email , description='电子邮件'),
 )
@@ -107,6 +108,7 @@ class Edit:
 
                 raise web.seeother('/user/edit/%d' % id)
 
+
 class Add:
     def GET(self):
         form = user_form()
@@ -130,6 +132,7 @@ class Add:
         else:
             session.set_flash('用户添加失败', 'error')
             raise web.seeother('/user/add')
+
 
 class Profile:
     def GET(self):
@@ -169,9 +172,9 @@ class Profile:
                 return render.user_profile(form)
             else:
                 data = {
-                        'username': form.d.username,
-                        'email': form.d.email,
-                        }
+                    'username': form.d.username,
+                    'email': form.d.email,
+                }
 
                 if password != '':
                     data.update({'password': password})
@@ -182,6 +185,7 @@ class Profile:
                     session.set_flash('资料编辑失败', 'error')
 
                 raise web.seeother('/user/profile')
+
 
 class Delete:
     def GET(self):

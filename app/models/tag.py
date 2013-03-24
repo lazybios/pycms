@@ -6,7 +6,17 @@ import web
 from config import db
 
 def get_tags_by_object(object_id, model):
-    return db.query('SELECT t1.* FROM tags AS t1 join object_tag_relationships AS t2 ON t1.id = t2.tag_id WHERE object_id = $object_id AND t2.model = $model', vars={'object_id': object_id, 'model': model})
+    if isinstance(object_id, list):
+        where = 'object_id IN $object_ids'
+        vars = {'object_ids': object_id}
+    else:
+        where = 'object_id = $object_id'
+        vars = {'object_id': object_id}
+
+    where += ' AND model = $model'
+    vars['model'] = model
+
+    return db.query('SELECT t1.*, t2.object_id FROM tags AS t1 join object_tag_relationships AS t2 ON t1.id = t2.tag_id WHERE ' + where, vars=vars)
 
 def new_tag(name):
     try:

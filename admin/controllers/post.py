@@ -20,12 +20,17 @@ post_form = form.Form(
     form.Textbox('published', description='发布时间'),
 )
 
+
 class Index:
-    def GET(self):
-        pass
+    def GET(self, page=1):
+        page = web.intget(page, 1)
+        search = ''
+        posts, total = post_model.get_posts_all(page=page, limit=4)
+        return render.post_index(posts, page, total, per_num=4, search=search)
 
     def POST(self):
         pass
+
 
 class Add:
     def GET(self):
@@ -46,7 +51,7 @@ class Add:
         if not form.validates(data):
             return render.post_add(form)
 
-        data['user_id'] = 1
+        data['user_id'] = session.get_user_id()
 
         if post_model.new_post(**data):
             session.set_flash('添加文章成功', 'success')
@@ -54,6 +59,7 @@ class Add:
             session.set_flash('添加文章失败', 'error')
 
         raise web.seeother('/post/add')
+
 
 class Edit:
     def GET(self, id):
@@ -76,8 +82,29 @@ class Edit:
         form.fill(post)
         return render.post_edit(form)
 
-    def POST(self):
-        pass
+    def POST(self, id):
+        form = post_form()
+        data = web.input(category_ids=[])
+
+        if 'slug' in data and data['slug'].strip():
+            data['slug'] = data['slug'].strip()
+            form.slug.validators = (validator.unique('posts', 'slug'), )
+
+        if 'category_ids' in data:
+            data['category_ids'] = [web.intget(category_id, 0)  for category_id in data['category_ids']]
+
+        if not form.validates(data):
+            return render.post_edit(form)
+
+        data['user_id'] = session.get_user_id()
+
+        if post_model.update_post(id=id, **data):
+            session.set_flash('编辑文章成功', 'success')
+        else:
+            session.set_flash('编辑文章失败', 'error')
+
+        raise web.seeother('/post/edit/%d', id)
+
 
 class Delete:
     def GET(self):
@@ -85,4 +112,3 @@ class Delete:
 
     def POST(self):
         pass
-

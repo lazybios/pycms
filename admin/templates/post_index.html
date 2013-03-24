@@ -1,23 +1,23 @@
-$def with (users, page, total, per_num, search=False)
+$def with (posts, page, total, per_num, search=False)
 <h2>
     $if not search:
-        用户
+        文章
     $else:
-        搜索用户
+        搜索文章
 </h2>
-$if not users:
+$if not posts:
     $if search:
-        <div class="alert alert-info">没有搜索到用户 !<a href="/admin/user">返回</a></div>
+        <div class="alert alert-info">没有搜索到文章 !<a href="/admin/post">返回</a></div>
     $else:
-        <div class="alert alert-info">还木有用户 !<a href="/admin/user/add">添加用户</a></div>
+        <div class="alert alert-info">还木有文章 !<a href="/admin/post/add">添加文章</a></div>
 $else:
-    <form action="/admin/user" method="get" class="form-search pull-right">
+    <form action="/admin/post" method="get" class="form-search pull-right">
         <div class="input-append">
             <input type="text" class="span2 search-query" name="s" value="$search">
             <button type="submit" class="btn">搜索</button>
         </div>
     </form>
-    <form action="/admin/user" class="form-inline" method="post">
+    <form action="/admin/post" class="form-inline" method="post">
         <div class="control-group">
             <select name="action" class="span1">
                 <option value="-1">&nbsp;</option>
@@ -29,26 +29,24 @@ $else:
             <thead>
                 <tr>
                     <th><input type="checkbox" id="check_all" /></th>
-                    <th>用户名</th>
-                    <th>电子邮件</th>
+                    <th>标题</th>
                     <th>创建时间</th>
                     <th class="actions">&nbsp;</th>
                 </tr>
             </thead>
             <tbody>
-            $for user in users:
+            $for post in posts:
                 <tr>
-                    <td><input type="checkbox" name="id" value="$user.id" /></td>
-                    <td>$user.username</td>
-                    <td>$user.email</td>
-                    <td>$user.created</td>
-                    <td class="actions"><a href="/admin/user/edit/$user.id" class="btn">编辑</a></td>
+                    <td><input type="checkbox" name="id" value="$post.id" /></td>
+                    <td>$post.title</td>
+                    <td>$post.created</td>
+                    <td class="actions"><a href="/admin/post/edit/$post.id" class="btn">编辑</a></td>
                 </tr>
             </tbody>
         </table>
     </form>
-    $:pagination(page, total, per_num=per_num, base_url='/admin/user', base_args=['s'], class_='pagination-right')
+    $:pagination(page, total, per_num=per_num, base_url='/admin/post', base_args=['s'], class_='pagination-right')
 $if search:
-    $var title:搜索用户
+    $var title:搜索文章
 $else:
-    $var title:用户
+    $var title:文章

@@ -1,9 +1,9 @@
 #encoding=utf-8
 
 import math
-import web
 
 from app.helpers import utils, session
+
 
 def input_error_class(note):
     if not note is None:
@@ -18,6 +18,7 @@ def get_flash(tp='all'):
         alerts = ['<div class="alert alert-%s">%s</div>' % (t, session.get_flash(t)) for t in keys if tp == 'all' or t == tp]
 
     return ''.join(alerts)
+
 
 def pagination(current_page=1, total=0, per_num=20, max_pager_links = 8, base_url= '', base_args=[], class_=''):
     if total == 0 or per_num == 0:
@@ -72,4 +73,4 @@ def pagination(current_page=1, total=0, per_num=20, max_pager_links = 8, base_ur
     else:
         output.append(u'<li class="disabled"><span>下一页</span></li>')
 
-    return ('<div class="pagination %s">' % class_) +'\n<ul>\n' + '\n'.join(output) + '\n</ul>\n</div>'
+    return ('<div class="pagination %s">' % class_) + '\n<ul>\n' + '\n'.join(output) + '\n</ul>\n</div>'

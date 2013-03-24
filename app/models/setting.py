@@ -1,14 +1,16 @@
 #encoding=utf-8
-import web
 
 from config import db, view_globals
 
 _setting = {}
-_keys = ['site_name',
-        'site_keyword',
-        'site_description',
-        'site_status',
-        'site_close_reason',]
+_keys = [
+    'site_name',
+    'site_keyword',
+    'site_description',
+    'site_status',
+    'site_close_reason',
+]
+
 
 def save_setting(data):
     setting = get_setting()
@@ -24,10 +26,12 @@ def save_setting(data):
         for row in rows:
             where = '`key`=$key'
             vars = {'key': row['key']}
-            db.update('settings', where=where, vars=vars, **{'value': row['value']})
+            db.update(
+                'settings', where=where, vars=vars, **{'value': row['value']})
 
     update_view_site_setting()
     return True
+
 
 def get_setting(key=None):
     if not _setting:
@@ -52,6 +56,7 @@ def get_setting(key=None):
     else:
         _setting.get(key)
 
+
 def update_view_site_setting():
     if view_globals.get('site') is None:
         view_globals['site'] = {}
@@ -60,5 +65,3 @@ def update_view_site_setting():
     view_globals['site']['name'] = setting['site_name']
     view_globals['site']['keyword'] = setting['site_keyword']
     view_globals['site']['description'] = setting['site_description']
-
-

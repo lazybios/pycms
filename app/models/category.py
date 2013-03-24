@@ -1,9 +1,11 @@
 #encoding=utf-8
+
 import web
 
 from config import db
 
 _category_settings = {}
+
 
 def register_model_category(model, **args):
     _category_settings.setdefault(model, {
@@ -13,14 +15,17 @@ def register_model_category(model, **args):
 
     _category_settings[model].update(args)
 
+
 def init_category_settings():
     register_model_category('post', label='文章分类', hierarchical=True)
 
 if not _category_settings:
     init_category_settings()
 
+
 def get_category_setting(model):
     return _category_settings.get(model)
+
 
 def get_category_children(model, order=None):
     categories = db.select('categories', where='model=$model', vars={'model': model}, order=order)
@@ -31,6 +36,7 @@ def get_category_children(model, order=None):
         else:
             children[category['parent_id']] = [category]
     return children
+
 
 def get_category_dropdown(model, parent_id=0):
     children = get_category_children(model)
@@ -48,6 +54,7 @@ def get_category_dropdown(model, parent_id=0):
 
     return output
 
+
 def get_category_list(model, parent_id=0):
     children = get_category_children(model)
     parents = children.keys()
@@ -64,6 +71,7 @@ def get_category_list(model, parent_id=0):
     recursive(parent_id, depth)
     return output
 
+
 def get_category(id=None, what='*', where=None, vars=None):
     if id is None and where is None:
         return None
@@ -77,8 +85,16 @@ def get_category(id=None, what='*', where=None, vars=None):
     except IndexError:
         return None
 
+
 def get_categories_by_object(object_id):
-    return db.query('SELECT t1.* FROM categories AS t1 join object_category_relationships AS t2 ON t1.id = t2.category_id WHERE object_id = $object_id', vars={'object_id': object_id})
+    if isinstance(object_id, list):
+        where = 'object_id IN $object_ids'
+        vars = {'object_ids': object_id}
+    else:
+        where = 'object_id = $object_id'
+        vars = {'object_id': object_id}
+
+    return db.query('SELECT t1.*, t2.object_id FROM categories AS t1 join object_category_relationships AS t2 ON t1.id = t2.category_id WHERE ' + where, vars=vars)
 
 
 def new_category(model, name, slug, parent_id=0, description=''):

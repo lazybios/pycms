@@ -1,5 +1,5 @@
 #encoding=utf-8
-import web
+
 from datetime import datetime
 
 from app.models import tag as tag_model
@@ -22,7 +22,8 @@ comment_status_list = {
     COMMENT_STATUS_CLOSE: '关闭',
 }
 
-def get_post(id=None, slug=None, status=STATUC_PUBLISH ):
+
+def get_post(id=None, slug=None, status=STATUC_PUBLISH):
     where = {}
     vars = {}
 
@@ -37,18 +38,79 @@ def get_post(id=None, slug=None, status=STATUC_PUBLISH ):
 
     try:
         post = db.where('posts', limit=1, **where)[0]
-        #post['user'] = user_model.get_user(post['user_id'])
+        post['user'] = user_model.get_user(post['user_id'])
         post['categories'] = category_model.get_categories_by_object(post['id'])
         post['tags'] = tag_model.get_tags_by_object(post['id'], 'post')
         return post
     except IndexError:
         return False
 
+
+def get_posts(page=0, what='*', where=None, vars=None, order=None, total=True, limit=None, offset=None):
+    if page > 0:
+        limit = limit or 20
+        offset = (page-1)*limit
+
+    if order is None:
+        order = 'created DESC'
+
+    posts = db.select('posts', what=what, where=where, vars=vars, order=order, limit=limit, offset=offset)
+
+    if total is True:
+        total = db.select('posts', what='COUNT(*) AS total', where=where, vars=vars)[0]['total']
+    else:
+        total = len(posts)
+
+    return posts, total
+
+def get_posts_all(page=0, what='*', where=None, vars=None, order=None, total=True, limit=None, offset=None):
+    posts, total = get_posts(page=page, what=what, where=where, vars=vars, order=order, total=total, limit=limit, offset=offset)
+    user_ids = []
+    ids = []
+
+    posts = list(posts)
+    for post in posts:
+        ids.append(post.id)
+        if post.user_id not in user_ids:
+            user_ids.append(post.user_id)
+
+    users = db.select('users', what='id, username', where='id IN $user_ids', vars={'user_ids': user_ids})
+    tags = tag_model.get_tags_by_object(ids, 'post')
+    categories = category_model.get_categories_by_object(ids)
+
+    users_dict = {}
+    tags_dict = {}
+    categories_dict = {}
+    for user in users:
+        users_dict.setdefault(user.id, user)
+
+    for tag in tags:
+        tags_dict.setdefault(tag.object_id, [])
+        tags_dict[tag.object_id].append(tag)
+
+    for category in categories:
+        categories_dict.setdefault(category.object_id, [])
+        categories_dict[category.object_id].append(category)
+
+    for post in posts:
+        if post.user_id in users_dict:
+            post['user'] = users_dict[post.user_id]
+
+        if post.id in tags_dict:
+            post['tags'] = tags_dict[post.id]
+
+        if post.id in categories_dict:
+            post['categories'] = categories_dict[post.id]
+
+    return posts, total
+
+
 def filter_values(values):
     fields = ['title', 'content', 'slug', 'tags', 'category_ids', 'user_id', 'published', 'status', 'comment_status']
     for field in values.keys():
         if field not in fields:
             del values[field]
+
 
 def new_post(**values):
     filter_values(values)
@@ -59,11 +121,8 @@ def new_post(**values):
 
     t = db.transaction()
     try:
-        web.debug('test')
         post_id = db.insert('posts', **values)
 
-        web.debug('test2')
-        web.debug(tags)
         if tags:
             tag_model.save_tag_relationships(post_id, 'post', tags, new=True)
 
@@ -75,6 +134,7 @@ def new_post(**values):
     else:
         t.commit()
         return post_id
+
 
 def update_post(id=None, where=None, vars=None, **values):
     if id is not None:
@@ -101,6 +161,7 @@ def update_post(id=None, where=None, vars=None, **values):
     else:
         t.commit()
         return True
+
 
 def delet_post(id=None):
     return

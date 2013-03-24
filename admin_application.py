@@ -3,6 +3,7 @@ from app.helpers import session
 
 urls = (
     '/post', 'admin.controllers.post.Index',
+    '/post/page/(\d+)', 'admin.controllers.post.Index',
     '/post/add', 'admin.controllers.post.Add',
     '/post/edit/(\d+)', 'admin.controllers.post.Edit',
     '/post/delete/(\d+)', 'admin.controllers.post.Delete',
@@ -20,9 +21,10 @@ urls = (
     '/setting', 'admin.controllers.site.Setting',
 )
 
+
 def admin_processor(handler):
-    return handler()
-    #return session.login_required(handler)()
+    #return handler()
+    return session.login_required(handler)()
 
 app = web.application(urls, globals())
 app.add_processor(admin_processor)

@@ -3,9 +3,11 @@
 import web
 from web import form
 
-from admin import render
+from app.helpers import get_render
 from app.helpers import validator, session
 from app.models import user as user_model
+
+render = get_render('app', 'single_layout')
 
 login_form = form.Form(
     form.Textbox('username', validator.not_empty, description='用户名', class_='input-block-level', placeholder='用户名'),
